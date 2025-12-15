@@ -1,0 +1,11 @@
+# Python derleme dosyalari
+__pycache__/
+*.py[cod]
+
+# Sanal ortam klasorleri
+venv/
+env/
+
+# IDE ayarlari (varsa)
+.vscode/
+.idea/
