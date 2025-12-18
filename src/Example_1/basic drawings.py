@@ -3,7 +3,7 @@ import numpy as np
 # OpenCV works according to BGR (blue, green,red)
 # The origin of the coordinate plane is located in the upper left corner of the screen.
 
-img=cv2.imread("albert.jpg")
+img = cv2.imread(r"C:\OpenCV_Work\assets\albert.jpg")
 
 
 # draw a LİNE

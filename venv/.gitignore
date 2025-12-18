@@ -1,11 +1,2 @@
-# Python derleme dosyalari
-__pycache__/
-*.py[cod]
-
-# Sanal ortam klasorleri
-venv/
-env/
-
-# IDE ayarlari (varsa)
-.vscode/
-.idea/
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*

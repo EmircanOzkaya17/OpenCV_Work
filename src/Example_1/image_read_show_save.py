@@ -1,6 +1,6 @@
 import cv2
 
-img = cv2.imread("petersburg.jpg") # We took the image and put it into the variable
+img = cv2.imread("C:\Users\MELSA ÖZKAYA\Desktop\OpenCV_Work\assets\petersburg.jpg") # We took the image and put it into the variable
 
 cv2.imshow("St Petersburg Landscape", img) # title and variable
 
