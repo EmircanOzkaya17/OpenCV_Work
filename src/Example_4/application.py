@@ -3,7 +3,7 @@ import numpy as np
 # We will try to separate the rose from the background using thresholding techniques and paint it purple.
 img = cv2.imread(r"C:\OpenCV_Work\assets\rose.jpg")
 
-hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
 
 # Convert to HSV
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
