@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 def main():
-    image=cv2.imread("petersburg.jpg",0)
+    image=cv2.imread(r"C:\OpenCV_Work\assets\petersburg.jpg",0)
     image=cv2.resize(image,(250,250))
     print()
     ss=ssharpening()
@@ -22,7 +22,7 @@ def main():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    image2=cv2.imread("swartz.jpg")
+    image2=cv2.imread(r"C:\OpenCV_Work\assets\swartz.jpg")
     image2=cv2.resize(image2,(300,300))
     average=bb.average()
     biletral=bb.bilateral()
@@ -33,7 +33,7 @@ def main():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    image_3=cv2.imread("swartz.jpg",0)
+    image_3=cv2.imread(r"C:\OpenCV_Work\assets\swartz.jpg",0)
     image_3=cv2.resize(image_3,(200,200))
     closing=mm.closing()
     opening=mm.opening()

@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class ssharpening:
-    def __init__(self, image_path="petersburg.jpg"):
+    def __init__(self, image_path=r"C:\OpenCV_Work\assets\petersburg.jpg"):
         
         self.image = cv2.imread(image_path,0)
 
