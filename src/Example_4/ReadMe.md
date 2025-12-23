@@ -4,26 +4,6 @@ This project focuses on fundamental **Thresholding techniques**, which are essen
 
 ---
 
-## 📂 Project Structure
-
-Below is the complete directory tree for this project:
-
-```text
-Example_4/
-├── assets/
-│   └── rose.jpg               # Original input image
-├── results/                   # Processed output images
-│   ├── adaptive_gaussian.png
-│   ├── adaptive_mean.png
-│   ├── binary_image.png
-│   ├── otsu_imahe.png
-│   ├── rose_mask.png
-│   └── rose_purple.png
-├── src/
-│   ├── application.py         # Script for color manipulation (Red to Purple)
-│   └── tresholding.py         # Class containing thresholding algorithms
-├── main.py                    # Main entry point to run and test the project
-└── ReadMe.md                  # Project documentation
 
 ---
 
@@ -45,3 +25,26 @@ The following steps were applied to change the color of the rose from red to pur
 2.  **Color Masking**: Two separate masks for red tones (`lower_red` and `upper_red`) were created and then combined.
 3.  **Morphological Operations**: **MORPH_CLOSE** (closing) and **MORPH_OPEN** (opening) operations were applied to remove noise from the mask.
 4.  **Color Change**: The Hue value of the masked region was set to 135 (purple), and the Saturation was increased by 50%.
+
+
+
+## 📂 Project Structure
+
+Below is the complete directory tree for this project:
+
+```text
+Example_4/
+├── assets/
+│   └── rose.jpg               # Original input image
+├── results/                   # Processed output images
+│   ├── adaptive_gaussian.png
+│   ├── adaptive_mean.png
+│   ├── binary_image.png
+│   ├── otsu_imahe.png
+│   ├── rose_mask.png
+│   └── rose_purple.png
+├── src/
+│   ├── application.py         # Script for color manipulation (Red to Purple)
+│   └── tresholding.py         # Class containing thresholding algorithms
+├── main.py                    # Main entry point to run and test the project
+└── ReadMe.md                  # Project documentation
