@@ -1,5 +1,8 @@
 import cv2 
 import numpy as np
+import os
+output_dir = r"C:\OpenCV_Work\src\Example_4\results"
+os.makedirs(output_dir, exist_ok=True)
 # We will try to separate the rose from the background using thresholding techniques and paint it purple.
 img = cv2.imread(r"C:\OpenCV_Work\assets\rose.jpg")
 
@@ -44,6 +47,8 @@ v[mask == 255] = v[mask == 255]
 hsv_new = cv2.merge([h, s, v])  # It brings together the channels we've changed.
 result = cv2.cvtColor(hsv_new, cv2.COLOR_HSV2BGR)
 
+cv2.imwrite(os.path.join(output_dir, "rose_mask.png"), mask)
+cv2.imwrite(os.path.join(output_dir, "rose_purple.png"), result)
 
 cv2.imshow("Final Mask", mask)
 cv2.imshow("Final Result", result)
