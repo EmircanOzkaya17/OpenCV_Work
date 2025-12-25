@@ -1,0 +1,21 @@
+# Python Bytecode (Kesinlikle olmamalı)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sanal Ortamlar (Varsa)
+venv/
+env/
+.venv/
+
+# IDE Ayarları (Kişisel dosyalar)
+.vscode/
+.idea/
+
+# İşletim Sistemi Dosyaları
+.DS_Store
+Thumbs.db
+
+# İsteğe bağlı: Büyük test videolarını yüklemek istemiyorsan:
+*.mp4
+*.avi
