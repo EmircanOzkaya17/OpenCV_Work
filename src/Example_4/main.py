@@ -5,7 +5,7 @@ import os
 def main():
     output_dir = r"C:\OpenCV_Work\src\Example_4\results"
     os.makedirs(output_dir, exist_ok=True)
-    thresholding = tresholding.cls_tresholding()
+    thresholding = tresholding.Tresholding()
     original_image = cv2.imread(r"C:\OpenCV_Work\assets\rose.jpg", 0)
     original_image=cv2.resize(original_image,(400,400))
     binary_image = thresholding.binary_tresholding()
