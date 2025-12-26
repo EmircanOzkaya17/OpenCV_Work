@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-class Def_Application():
-    def make_red_mask(hsv):
+class RoseProcessor():
+    def create_red_color_mask(hsv):
         # RED MASK (DECEMBER 2nd + low saturation tolerance)
         lower_red1 = np.array([0, 40, 40])
         upper_red1 = np.array([10, 255, 255])

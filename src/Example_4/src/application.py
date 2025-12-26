@@ -1,7 +1,7 @@
 import cv2 
 import numpy as np
 import os
-from application_Functions import Def_Application
+from application_Functions import RoseProcessor
 
 def main():
     output_dir = r"C:\OpenCV_Work\src\Example_4\results"
@@ -12,15 +12,15 @@ def main():
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    mask=Def_Application.make_red_mask(hsv)
+    mask=RoseProcessor.create_red_color_mask(hsv)
 
-    mask=Def_Application.apply_morphological_processing(mask)
+    mask=RoseProcessor.apply_morphological_processing(mask)
 
     # Soften the mask but then make it double again.
     mask = cv2.GaussianBlur(mask, (5, 5), 0)
     _, mask = cv2.threshold(mask, 50, 255, cv2.THRESH_BINARY)
 
-    hsv_new=Def_Application.edit_color_channels(hsv, mask)
+    hsv_new=RoseProcessor.edit_color_channels(hsv, mask)
 
     result = cv2.cvtColor(hsv_new, cv2.COLOR_HSV2BGR)
 
