@@ -49,9 +49,10 @@ src/Example_5/
 │   └── contour_0.jpg, contour_1.jpg, ...
 ├── main.py                          # Interactive fruit counting application
 └── src/                            
-    ├── application_func.py        # ImageProcessor class – core logic
-    ├── draw_contours.py           # Simple contour drawing test script
-    └── features.py               # Advanced contour feature extraction & visualisation
+├── application_func.py        # ImageProcessor class – core logic
+├── draw_contours.py           # Simple contour drawing test script
+└── features.py               # Advanced contour feature extraction & visualisation
+
 
 application_func.py
 Defines the ImageProcessor class. Handles image loading, Canny edge detection, contour retrieval, area filtering, object numbering, and info overlay. Also provides methods to update parameters, reset to defaults, and save results.
