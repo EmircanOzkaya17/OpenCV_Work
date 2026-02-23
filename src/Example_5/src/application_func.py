@@ -40,8 +40,16 @@ class ImageProcessor:
     
     def detect_and_count_fruits(self):
         """Identify, count, and number the fruits.."""
+       
         edges = self.apply_canny()
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        
+        kernel = np.ones((5, 5), np.uint8)
+        
+        
+        processed_edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=2)
+        
+        contours, _ = cv2.findContours(processed_edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
         self.processed_image = self.original.copy()
         
@@ -69,6 +77,8 @@ class ImageProcessor:
         
         self.add_info_text(fruit_count)
         
+        # ATTENTION: We used 'processed_edges' for counting, but
+        # we return the original and thin 'edges' variable to display on the screen..
         return fruit_count, fruit_contours, self.processed_image, edges
     
     def add_info_text(self, fruit_count):
