@@ -78,7 +78,7 @@ class ImageProcessor:
         cv2.rectangle(self.processed_image, (5, 5), (350, 95), (255, 255, 255), 1)
         
         
-        cv2.putText(self.processed_image, f"Meyve Sayisi: {fruit_count}", (10, 30),
+        cv2.putText(self.processed_image, f"Number of Fruits: {fruit_count}", (10, 30),
                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
         
         

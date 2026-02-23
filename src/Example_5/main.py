@@ -34,7 +34,7 @@ def main():
             try:
                 return int(val)
             except ValueError:
-                print(f"Uyarı: {key} sayısal bir değer olmalı, varsayılan ({default}) kullanılıyor.")
+                print(f"Warning: {key} It must be a numerical value, default ({default}) is being used.")
         return default
     
     threshold1 = get_int_env('THRESHOLD1', 100)
@@ -58,8 +58,8 @@ def main():
             max_area=max_area
         )
     except ValueError as e:
-        print(f"Hata: {e}")
-        print("Lütfen resim dosyasının yolunu kontrol edin.")
+        print(f"Error: {e}")
+        print("Please check the path to the image file.")
         return
     
     # Global variables 
@@ -69,13 +69,13 @@ def main():
     max_area = processor.max_area
     
     def update_display():
-        """Ekranı güncelle."""
+        """Update screen."""
         try:
             fruit_count, _, processed_img, edges = processor.detect_and_count_fruits()
             cv2.imshow('Edge Detection', edges)
             cv2.imshow('Fruit Counting', processed_img)
         except Exception as e:
-            print(f"Görüntü işleme hatası: {e}")
+            print(f"Image processing error: {e}")
     
     # Trackbar callback functions
     def update_threshold1(val):
@@ -175,12 +175,12 @@ def main():
                 except Exception as e:
                     print(f"Error: {e}")
         
-        elif key == ord('+'):  # Yakınlaştır
+        elif key == ord('+'):  
             scale = min(scale * 1.1, 3.0)
             # resize_and_show fonksiyonu şimdilik pasif
             print(f"Zoom: {scale:.2f}")
             
-        elif key == ord('-'):  # Uzaklaştır
+        elif key == ord('-'):  
             scale = max(scale * 0.9, 0.5)
             print(f"Removal: {scale:.2f}")
     
