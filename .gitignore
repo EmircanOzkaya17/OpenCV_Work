@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.env
 # Sanal Ortamlar (Varsa)
 venv/
 env/
@@ -19,3 +19,4 @@ Thumbs.db
 # İsteğe bağlı: Büyük test videolarını yüklemek istemiyorsan:
 *.mp4
 *.avi
+
