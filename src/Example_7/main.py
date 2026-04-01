@@ -1,108 +1,82 @@
-"""
-main.py
--------
-The entry point for the Kiwi filtering application.
-Reads configuration parameters from the .env file,
-creates SegmentationConfig, and starts the KiwiSegmentor pipeline.
-"""
-
+import os
 import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
-import os
 
-# Add the project root directory to the Python path (to access the src module)
-ROOT_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT_DIR))
+# .env dosyasının tam yolunu oluştur ve garantili şekilde yükle
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(BASE_DIR, ".env")
+load_dotenv(dotenv_path=env_path)
 
-from src.app_func import KiwiSegmentor, SegmentationConfig
+# src klasörünü Python yoluna ekle
+sys.path.insert(0, os.path.join(BASE_DIR, "src"))
+
+from app_func import KiwiFilter
 
 
-def load_config() -> tuple[SegmentationConfig, str, str]:
-    """
-    Loads the .env file and returns the application configuration. 
-    Defaults are used for missing or incorrect values.
-    """
-    # Upload the .env file — it must be in the same directory as main.py.
-    env_path = ROOT_DIR / ".env"
-    if not env_path.exists():
-        print(f"[Warning] .env file not found: {env_path}")
-        print("[Warning] Default values ​​will be used.")
-    load_dotenv(dotenv_path=env_path)
+def _get_env_int(key: str, default: int) -> int:
+    return int(os.getenv(key, default))
 
-    # ── File paths ──────────────────────────────────────────────────────────
-    image_path  = os.getenv("IMAGE_PATH",  "kiwi.jpg")
-    output_dir  = os.getenv("OUTPUT_DIR",  "results")
 
-    # ── Segmentation parameters ─────────────────────────────────────────────
-    config = SegmentationConfig(
-        # Saturation threshold: distinguishes marble background (S≈5-13) from kiwi (S≈100-255).
-        saturation_threshold  = int(os.getenv("SATURATION_THRESHOLD",  "55")),
-
-        # Minimum area: blobs smaller than this ratio of total pixels create leaf/noise.
-        min_area_ratio        = float(os.getenv("MIN_AREA_RATIO",       "0.009")),
-
-        # Maximum aspect ratio: leaves long-thin → high ratio → sifted
-        max_aspect_ratio      = float(os.getenv("MAX_ASPECT_RATIO",     "2.0")),
-
-        # Convex hull circularity threshold: kiwi ~0.96, elongated shapes lower.
-        min_hull_circularity  = float(os.getenv("MIN_HULL_CIRCULARITY", "0.40")),
-
-        # Ellipse expansion: compensates for edge pixel loss.
-        ellipse_scale         = float(os.getenv("ELLIPSE_SCALE",        "1.06")),
-
-        # GrabCut iteration count: more = more precise but slower.
-        grabcut_iterations    = int(os.getenv("GRABCUT_ITERATIONS",     "4")),
-
-        # GrabCut edge buffer (px): width of the indeterminate region around the ellipse
-        grabcut_border_px     = int(os.getenv("GRABCUT_BORDER_PX",      "18")),
-
-        # Save intermediate images: True → debug images are also written to disk.
-        save_intermediate     = os.getenv("SAVE_INTERMEDIATE", "True").lower() == "true",
-    )
-
-    return config, image_path, output_dir
+def _get_env_float(key: str, default: float) -> float:
+    return float(os.getenv(key, default))
 
 
 def main() -> None:
-    """
-    Main application flow:
-    1. Load configuration from .env
-    2. Create KiwiSegmentor
-    3. Run Pipeline
-    """
-    
-    config, image_path, output_dir = load_config()
+    # ── 1. Parametreleri .env'den oku ─────────────────────────────────────────
+    input_path  = os.getenv("INPUT_IMAGE_PATH",  "kiwi.jpg")
+    output_path = os.getenv("OUTPUT_IMAGE_PATH", "output.jpg")
 
-    print(f"[main] Image  : {image_path}")
-    print(f"[main] Output    : {output_dir}")
-    print(f"[main] Parameters:")
-    print(f"       saturation_threshold  = {config.saturation_threshold}")
-    print(f"       min_area_ratio        = {config.min_area_ratio}")
-    print(f"       max_aspect_ratio      = {config.max_aspect_ratio}")
-    print(f"       min_hull_circularity  = {config.min_hull_circularity}")
-    print(f"       ellipse_scale         = {config.ellipse_scale}")
-    print(f"       grabcut_iterations    = {config.grabcut_iterations}")
-    print(f"       grabcut_border_px     = {config.grabcut_border_px}")
-    print(f"       save_intermediate     = {config.save_intermediate}")
+    # KRİTİK NOKTA: Sınıfı başlatırken output_path'i içeri gönderiyoruz.
+    # Böylece her adımda nereye kayıt yapacağını biliyor.
+    kf = KiwiFilter(output_dir=output_path)
 
-    # Start the segmentation pipeline.
-    segmentor = KiwiSegmentor(
-        config     = config,
-        image_path = image_path,
-        output_dir = output_dir,
+    h_min = _get_env_int("HSV_H_MIN", 25)
+    h_max = _get_env_int("HSV_H_MAX", 85)
+    s_min = _get_env_int("HSV_S_MIN", 40)
+    s_max = _get_env_int("HSV_S_MAX", 255)
+    v_min = _get_env_int("HSV_V_MIN", 110)
+    v_max = _get_env_int("HSV_V_MAX", 255)
+
+    kernel_size      = _get_env_int("MORPH_KERNEL_SIZE",       5)
+    open_iterations  = _get_env_int("MORPH_OPEN_ITERATIONS",   2)
+    close_iterations = _get_env_int("MORPH_CLOSE_ITERATIONS",  3)
+    erode_iterations = _get_env_int("MORPH_ERODE_ITERATIONS",  1)
+
+    min_area              = _get_env_float("CONTOUR_MIN_AREA",               1000)
+    max_area              = _get_env_float("CONTOUR_MAX_AREA",             500000)
+    circularity_threshold = _get_env_float("CONTOUR_CIRCULARITY_THRESHOLD",   0.45)
+    convexity_threshold   = _get_env_float("CONTOUR_CONVEXITY_THRESHOLD",     0.65)
+
+    # ── 2. Görüntüyü oku ve HSV'ye dönüştür ──────────────────────────────────
+    print(f"[1/5] Görüntü okunuyor: {input_path}")
+    bgr_image = kf.load_image(input_path)
+
+    print("[2/5] BGR → HSV dönüşümü yapılıyor...")
+    hsv_image = kf.convert_to_hsv(bgr_image)
+
+    # ── 3. Yeşil/sarımsı maske oluştur ve uygula ─────────────────────────────
+    print(f"[3/5] HSV maskesi oluşturuluyor (V_MIN={v_min} → yaprak eleme)...")
+    mask = kf.create_green_mask(hsv_image, h_min, h_max, s_min, s_max, v_min, v_max)
+    _ = kf.apply_mask(hsv_image, mask)
+
+    # ── 4. Morfolojik açma + kapama ──────────────────────────────────────────
+    print("[4/5] Morfolojik işlemler (açma + kapama + aşındırma) uygulanıyor...")
+    refined_mask = kf.apply_morphology(mask, kernel_size, open_iterations, close_iterations, erode_iterations)
+
+    # ── 5. Kontur tespiti ve siyah arka plan üzerine çizim ───────────────────
+    print("[5/5] Konturlar tespit ediliyor (circ OR conv filtresi)...")
+    contours = kf.find_kiwi_contours(
+        refined_mask, min_area, max_area,
+        circularity_threshold, convexity_threshold
     )
+    print(f"      → {len(contours)} geçerli kiwi konturu bulundu.")
 
-    try:
-        segmentor.run()
-    except FileNotFoundError as err:
-        print(f"\n[Error] {err}")
-        print("[Error] Check the IMAGE_PATH value in the .env file.")
-        sys.exit(1)
-    except Exception as err:
-        print(f"\n[Unexpected Error] {err}")
-        raise
+    result = kf.draw_contours_on_black(bgr_image, contours)
+
+    # ── 6. Sonucu kaydet (GEREKSİZ OLDUĞU İÇİN SİLDİK) ────────────────────────
+    # kf.save_image(result, output_path)  <-- Bu satırı tamamen kaldırdık
+    print(f"\n✓ İşlem tamamlandı. Tüm adımlar '{output_path}' dizinine kaydedildi.")
 
 
 if __name__ == "__main__":

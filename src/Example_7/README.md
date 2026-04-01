@@ -1,171 +1,108 @@
-# 🥝 Kiwi Segmentation Pipeline
+# 🥝 Kiwi Detector — OpenCV HSV Filtering
 
-An image processing pipeline that detects kiwi slices in a photo, applies individual **GrabCut** refinement for each kiwi, and produces a clean binary mask.
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [How It Works](#how-it-works)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration (.env)](#configuration-env)
-- [Output Files](#output-files)
-- [Project Structure](#project-structure)
-- [Requirements](#requirements)
+A computer vision pipeline that detects and segments kiwi fruits from images using HSV color masking, morphological operations, and contour filtering.
 
 ---
 
-## Overview
+## 📁 Project Structure
 
-This project combines classical computer vision techniques to detect and segment kiwi slices placed on a marble background. No deep learning models are used — only color space analysis, morphological operations, geometric filtering, and the GrabCut algorithm.
-
-**Input:** A photo containing kiwi slices  
-**Output:** A binary mask (kiwis = white, background = black) + overlay comparison images
-
----
-
-## How It Works
-
-The pipeline consists of 5 main stages:
-
-### 1 — HSV Conversion & Saturation Thresholding
-The image is converted from BGR to the HSV color space. Only the **S (Saturation)** channel is used; the marble background has very low saturation (S ≈ 5–13) while kiwi skin has high saturation (S ≈ 100–255). A threshold is applied to produce a raw binary mask.
-
-### 2 — Morphological Noise Removal
-Small pixel noise remaining in the binary mask is cleaned up with **Morphological OPEN** (Erosion + Dilation, 3×3 kernel). A small kernel is used deliberately to prevent kiwi blobs from merging together.
-
-### 3 — Contour Analysis & Leaf Filtering
-Raw contours found by `findContours` pass through a 4-stage filter:
-- **Convex Hull** → Closes the hollow ring structure at the kiwi center, boosting circularity
-- **Minimum area check** → Small residual blobs are discarded
-- **Circularity filter** → Long, thin shapes (leaves) are eliminated
-- **Aspect ratio filter** → Contours with a high ellipse axis ratio are eliminated
-
-### 4 — GrabCut Refinement
-Runs independently for each kiwi. The ellipse interior, center, and border are marked as distinct GrabCut regions (FGD / PR_FGD / PR_BGD / BGD). The algorithm decides kiwi vs. background pixel-by-pixel based on color statistics.
-
-### 5 — Final Mask Generation
-All individual kiwi masks are combined with a bitwise OR. The binary mask, overlay, and side-by-side comparison images are saved to disk.
-
----
-
-## Installation
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/username/kiwi-segmentation.git
-cd kiwi-segmentation
-
-# 2. Create a virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate      # Linux / macOS
-venv\Scripts\activate         # Windows
-
-# 3. Install dependencies
-pip install -r requirements.txt
+```
+Example_7/
+├── assets/
+│   └── kiwi.jpg                  # Input image
+├── results/                      # Auto-generated step-by-step outputs
+│   ├── 01_original_bgr.jpg
+│   ├── 02_hsv_conversion.jpg
+│   ├── 03_raw_mask.jpg
+│   ├── 04_masked_hsv.jpg
+│   ├── 05_morphology_01_opening.jpg
+│   ├── 06_morphology_02_closing.jpg
+│   ├── 07_morphology_03_erosion.jpg
+│   └── 08_result_drawing.jpg
+├── src/
+│   └── app_func.py               # KiwiFilter class (core logic)
+├── .env                          # Environment variables (not committed)
+├── example.env                   # Example environment file
+├── main.py                       # Entry point
+└── README.md
 ```
 
 ---
 
-## Usage
+## ⚙️ How It Works
+
+The pipeline consists of 5 sequential steps:
+
+1. **Load Image** — Reads the input image in BGR format.
+2. **HSV Conversion** — Converts BGR to HSV color space for more robust color filtering.
+3. **Green/Yellow Mask** — Creates a binary mask targeting the green-yellow HSV range of kiwi skin.
+4. **Morphological Operations** — Applies opening, closing, and erosion to clean up noise and refine the mask.
+5. **Contour Detection** — Filters contours by area, circularity, and convexity; draws valid detections on a black canvas.
+
+Each step automatically saves its output image to the `results/` directory.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+```
+
+### 2. Install dependencies
+
+```bash
+pip install opencv-python numpy python-dotenv
+```
+
+### 3. Configure environment variables
+
+Copy `example.env` to `.env` and update the paths:
+
+```bash
+cp example.env .env
+```
+
+Then edit `.env`:
+
+```env
+INPUT_IMAGE_PATH="path/to/your/image.jpg"
+OUTPUT_IMAGE_PATH="path/to/your/results"
+```
+
+### 4. Run
 
 ```bash
 python main.py
 ```
 
-The application reads the `.env` file automatically. If the file is not found, it falls back to default values and prints a warning.
+---
+
+## 🔧 Configuration
+
+All parameters are controlled via the `.env` file.
+
+| Variable                        | Default      | Description                                  |
+|---------------------------------|--------------|----------------------------------------------|
+| `INPUT_IMAGE_PATH`              | `kiwi.jpg`   | Path to the input image                      |
+| `OUTPUT_IMAGE_PATH`             | `output.jpg` | Path to the results directory                |
+| `HSV_H_MIN`                     | `25`         | Hue lower bound (yellowish start)            |
+| `HSV_H_MAX`                     | `85`         | Hue upper bound (end of green)               |
+| `HSV_S_MIN`                     | `40`         | Saturation lower bound (filters background)  |
+| `HSV_S_MAX`                     | `255`        | Saturation upper bound                       |
+| `HSV_V_MIN`                     | `110`        | Value lower bound (filters out dark leaves)  |
+| `HSV_V_MAX`                     | `255`        | Value upper bound                            |
+| `MORPH_KERNEL_SIZE`             | `5`          | Morphological kernel size                    |
+| `MORPH_OPEN_ITERATIONS`         | `2`          | Opening iterations (removes small noise)     |
+| `MORPH_CLOSE_ITERATIONS`        | `3`          | Closing iterations (fills gaps)              |
+| `MORPH_ERODE_ITERATIONS`        | `1`          | Erosion iterations after closing             |
+| `CONTOUR_MIN_AREA`              | `1000`       | Minimum contour area (px²)                   |
+| `CONTOUR_MAX_AREA`              | `500000`     | Maximum contour area (px²)                   |
+| `CONTOUR_CIRCULARITY_THRESHOLD` | `0.45`       | Minimum circularity score                    |
+| `CONTOUR_CONVEXITY_THRESHOLD`   | `0.65`       | Minimum convexity score (for wedge shapes)   |
 
 ---
 
-## Configuration (.env)
-
-Create a `.env` file in the project root directory. Use `example.env` as a starting template.
-
-| Variable | Default | Description |
-|---|---|---|
-| `IMAGE_PATH` | `assets/kiwi.jpg` | Full or relative path to the input image |
-| `OUTPUT_DIR` | `results` | Directory where output images will be saved |
-| `SATURATION_THRESHOLD` | `55` | HSV S-channel threshold (recommended: 45–70) |
-| `MIN_AREA_RATIO` | `0.009` | Minimum blob area as a fraction of total pixels |
-| `MAX_ASPECT_RATIO` | `2.0` | Maximum ellipse axis ratio (leaf filter) |
-| `MIN_HULL_CIRCULARITY` | `0.40` | Convex hull circularity threshold |
-| `ELLIPSE_SCALE` | `1.06` | Ellipse enlargement factor (compensates for edge loss) |
-| `GRABCUT_ITERATIONS` | `4` | Number of GrabCut iterations (more = precise but slower) |
-| `GRABCUT_BORDER_PX` | `18` | GrabCut border buffer width in pixels |
-| `SAVE_INTERMEDIATE` | `True` | `True` → intermediate step images are also saved |
-
-### Setup from template
-
-```bash
-cp example.env .env
-# Then edit .env with your own paths and parameters
-```
-
-> ⚠️ Never push your `.env` file to Git. Make sure it is listed in `.gitignore`.
-
----
-
-## Output Files
-
-All outputs are written to the directory specified by `OUTPUT_DIR`.
-
-| File | Description |
-|---|---|
-| `01_saturation_mask.jpg` | Raw saturation thresholding result |
-| `02_cleaned_mask.jpg` | Mask after morphological noise removal |
-| `03_debug_ellipses.jpg` | Detected ellipses drawn over the original image |
-| `04_final_binary_mask.jpg` | Final binary mask (kiwi = white, background = black) |
-| `05_overlay.jpg` | Semi-transparent green overlay on the original image |
-| `06_comparison.jpg` | Original / Mask / Overlay side-by-side comparison |
-
-> When `SAVE_INTERMEDIATE=False`, only files `04`, `05`, and `06` are produced.
-
----
-
-## Project Structure
-
-```
-Example_7/
-├── assets/
-│   └── kiwi.jpg              # Input image
-├── results/                  # Generated outputs (created automatically)
-│   ├── 01_saturation_mask.jpg
-│   ├── 02_cleaned_mask.jpg
-│   ├── 03_debug_ellipses.jpg
-│   ├── 04_final_binary_mask.jpg
-│   ├── 05_overlay.jpg
-│   └── 06_comparison.jpg
-├── src/
-│   └── app_func.py           # Core pipeline module
-├── .env                      # Your local config (do NOT commit)
-├── example.env               # Config template (safe to commit)
-├── main.py                   # Entry point
-├── README.md
-└── requirements.txt
-```
-
----
-
-## Requirements
-
-```
-opencv-python
-numpy
-python-dotenv
-```
-
-To generate `requirements.txt`:
-
-```bash
-pip freeze > requirements.txt
-```
-
----
-
-## Technical Notes
-
-- The pipeline is built entirely on classical image processing — no GPU or deep learning model required.
-- GrabCut runs **independently** for each kiwi, preventing nearby kiwis from corrupting each other's mask.
-- For different backgrounds or lighting conditions, `SATURATION_THRESHOLD` and `MIN_HULL_CIRCULARITY` are the primary parameters to tune first.
