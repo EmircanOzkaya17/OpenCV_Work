@@ -367,5 +367,5 @@ OpenCV_Work/
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/EmircanOzkaya17">EmircanOzkaya17</a>
+  Made with  by <a href="https://github.com/EmircanOzkaya17">EmircanOzkaya17</a>
 </p>
